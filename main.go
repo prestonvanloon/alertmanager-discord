@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -96,7 +97,17 @@ func main() {
 			DO.Content = Content + "```"
 
 			DOD, _ := json.Marshal(DO)
-			http.Post(*whURL, "application/json", bytes.NewReader(DOD))
+			resp, err := http.Post(*whURL, "application/json", bytes.NewReader(DOD))
+			if err != nil {
+				log.Printf("Error sending POST: %v\n", err)
+			} else if resp.StatusCode >= 400 {
+				log.Printf("Invalid status code %d\n", resp.StatusCode)
+				b, err := ioutil.ReadAll(resp.Body)
+				if err != nil {
+					log.Printf("Cannot read body: %v\n", err)
+				}
+				log.Printf("Response: %s\n", b)
+			}
 		}
 	}))
 }
