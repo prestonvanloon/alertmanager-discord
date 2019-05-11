@@ -100,6 +100,8 @@ func main() {
 			resp, err := http.Post(*whURL, "application/json", bytes.NewReader(DOD))
 			if err != nil {
 				log.Printf("Error sending POST: %v\n", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
 			} else if resp.StatusCode >= 400 {
 				log.Printf("Invalid status code %d\n", resp.StatusCode)
 				b, err := ioutil.ReadAll(resp.Body)
@@ -107,6 +109,8 @@ func main() {
 					log.Printf("Cannot read body: %v\n", err)
 				}
 				log.Printf("Response: %s\n", b)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
 			}
 		}
 	}))
